@@ -1,4 +1,9 @@
 # 9 Functions ----
+
+# Packages ----
+library(tidyverse)
+library(ggplot2)
+
 # a simple function to show how it works
 add_one <- function(input_data) {
   return(input_data + 1)
@@ -73,3 +78,94 @@ report_p <- function(p, digits = 3) {
                       paste("p=", round(p, digits)))
   return(reported)
 }
+
+# 9.8 Anonymous Functions ----
+# The Function definition is not bound to an R object.
+function(input_data) {
+  return(input_data+1)
+}
+
+# 9.9 Activity 3: Stretch Exercise ----
+# Try and write a custom function used to identify the largest male Drosoophila from a small dataset
+# Make some fake data into a tibble
+
+vial <- (c((1:10),(1:10)))
+sex <- (c(rep("male",10),rep("female", 10)))
+weight_mg <- c(rnorm(10, mean=0.2, sd=0.02), rnorm(10, mean=0.21, sd=0.01))
+
+dros_weight <- tibble(vial, sex, weight_mg) # needed to install tidyverse package to create tibble
+
+## 9.9.0.1 Extract heaviest male from dataset ----
+dros_weight %>% 
+  filter(sex=="male") %>% 
+  arrange(.,desc(weight_mg)) %>% 
+  head(., n=1)
+
+## 9.9.0.2 How can you remove the data and introduce a placeholder?
+find_largest_male <- function(df){ 
+  df %>% 
+    filter(sex == "male") %>% 
+    arrange(., desc(weight_mg)) %>% 
+    head(., n=1)
+}
+
+## 9.9.0.3 How do we refine and extend the basic function?
+find_largest_fly <- function(df,  n=1, s=c("male", "female") ){ 
+  df %>% 
+    filter(sex == s) %>% 
+    arrange(., desc(weight_mg)) %>% 
+    head(., n=n)
+}
+## 9.9.0.4 Can you add useful warning messages?
+
+# 9.10 Activity 4: Custom ggplot themes
+plot <- dros_weight %>% 
+  ggplot(aes(x=sex,
+             y=weight_mg))+
+  geom_jitter(width = 0.1)
+
+plot
+
+# addition of title and theme improve style of plot
+plot+
+  ggtitle("Comparison of weights (mg) between male and female Drosophila")+
+  theme_classic()
+
+# Custom theme sets defaults for font and size, but these can be changed without changing the function
+# custom theme sets defaults for font and size, but these can be changed without changing the function
+theme_custom <- function(base_size=12, base_family="serif"){
+  theme_classic(base_size = base_size, 
+                base_family = base_family,
+  ) +
+    # update theme minimal 
+    theme(
+      # specify default settings for plot titles - use rel to set titles relative to base size
+      plot.title=element_text(size=rel(1.5),
+                              face="bold",
+                              family=base_family),
+      #specify defaults for axis titles
+      axis.title=element_text(
+        size=rel(1),
+        family=base_family),
+      # specify position for y axis title
+      axis.title.y=element_text(margin = margin(r = 10, l= 10)),
+      # specify position for x axis title
+      axis.title.x = element_text(margin = margin( t = 10, b = 10)),
+      # set major y grid lines
+      panel.grid.major.y = element_line(colour="gray", size=0.5),
+      # add axis lines
+      axis.line=element_line(),
+      # Adding a 0.5cm margin around the plot
+      plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),    
+      # Setting the font for the legend text
+      legend.text = element_text(face = "italic"),   
+      # Removing the legend title
+      legend.title = element_blank(),    
+      # Setting the position for the legend - 0 is left/bottom, 1 is top/right
+      legend.position = c(0.9, 0.8)             
+    )
+  
+}
+
+plot+
+  theme_custom()
